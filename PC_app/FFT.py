@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.io import wavfile
 
-fs, data = wavfile.read("samplefile/input.wav")
+fs, data = wavfile.read("samplefile/c9cddeac.wav")
 
 # モノラル化
 if len(data.shape) > 1:
