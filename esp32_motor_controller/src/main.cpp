@@ -1,36 +1,45 @@
-#include <Arduino.h>
-#include "motor.h"
+#include <WiFi.h>
 
-// --------------------
-// 初期化
-// --------------------
+const char* ssid = "C7-5F-TR";
+const char* password = "robot20212021robot";
+
+WiFiServer server(5000);
+
+String buffer = "";
+
 void setup() {
   Serial.begin(115200);
 
-  // モータ初期化（使ってるならここでpinModeなど）
-  initMotor();  
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+  }
 
-  Serial.println("READY");  // PC側に開始合図
+  server.begin();
+  Serial.println("Server started");
 }
 
-// --------------------
-// メインループ
-// --------------------
 void loop() {
+  WiFiClient client = server.available();
 
-  if (Serial.available()) {
+  if (client) {
+    Serial.println("Client connected");
 
-    // 1行受信（例: 440）
-    String line = Serial.readStringUntil('\n');
-    int value = line.toInt();
+    while (client.connected()) {
+      while (client.available()) {
+        char c = client.read();
 
-    // デバッグ
-    Serial.println(value);
+        // 改行で1行として扱う
+        if (c == '\n') {
+          Serial.println(buffer); // ここでデータ確定
+          buffer = "";
+        } else {
+          buffer += c;
+        }
+      }
+    }
 
-    // 無効値は無視
-    if (value <= 0) return;
-
-    // モータ駆動
-    setMotorSpeed(value);
+    client.stop();
+    Serial.println("Client disconnected");
   }
 }

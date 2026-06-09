@@ -1,3 +1,4 @@
+/*
 #include <Arduino.h>
 #include "motor.h"
 
@@ -45,3 +46,4 @@ void setMotorSpeed(int freq) {
     delayMicroseconds(delayTime);
   }
 }
+  */

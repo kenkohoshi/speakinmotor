@@ -1,32 +1,20 @@
-import serial
+import socket
 import time
-import numpy as np
 
-# データ読み込み
-data = np.loadtxt("motor_freq.txt", dtype=int)
+ESP32_IP = "192.168.1.128"
+PORT = 5000
 
-ser = serial.Serial("COM3", 115200)
-time.sleep(2)
+# ファイル読み込み
 
-for v in data:
+#with open("motor_freq.txt", "r") as f:
+with open(r"C:\\Users\\Owner\\Desktop\\speakingmotor\\PC_app\\motor_freq.txt", "r") as f:
+    lines = f.readlines()
 
-    # -----------------------------
-    # 安定化処理（ここが重要）
-    # -----------------------------
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((ESP32_IP, PORT))
 
-    # 低すぎる値をカット
-    if v < 50:
-        v = 0
-    else:
-        v = int(v * 2) + 80  # スケーリング
+for line in lines:
+    sock.send(line.encode())  # 1行ずつ送る
+    time.sleep(0.001)         # 遅延（重要）
 
-    # 上限制限
-    if v > 800:
-        v = 800
-
-    ser.write(f"{v}\n".encode())
-    ser.flush()
-
-    time.sleep(0.01)
-
-ser.close()
+sock.close()
