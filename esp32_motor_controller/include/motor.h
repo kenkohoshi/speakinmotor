@@ -1,7 +1,5 @@
-#ifndef MOTOR_H
-#define MOTOR_H
+#pragma once
 
-void setMotorSpeed(int value);
+void initMotor();
+void setMotorSpeed(int freq);
 void stepMotor();
-
-#endif

@@ -1,4 +1,7 @@
-#include<Arduino.h>
+#include <Arduino.h>
+#include "motor.h"
+
+// ピン（ULN2003 / 28BYJ-48想定）
 #define PIN1 26
 #define PIN2 25
 #define PIN3 33
@@ -6,7 +9,15 @@
 
 int stepIndex = 0;
 
-void stepMotor(){
+void initMotor() {
+  pinMode(PIN1, OUTPUT);
+  pinMode(PIN2, OUTPUT);
+  pinMode(PIN3, OUTPUT);
+  pinMode(PIN4, OUTPUT);
+}
+
+void stepMotor() {
+
   digitalWrite(PIN1, LOW);
   digitalWrite(PIN2, LOW);
   digitalWrite(PIN3, LOW);
@@ -22,9 +33,10 @@ void stepMotor(){
   stepIndex++;
   if(stepIndex >= 4) stepIndex = 0;
 }
+
 void setMotorSpeed(int freq) {
 
-  if (freq < 50) return;
+  if (freq < 50) return;   // ノイズカット
 
   int delayTime = 1000000 / freq / 4;
 
