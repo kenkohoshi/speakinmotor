@@ -1,58 +1,63 @@
-#include <WiFi.h>
+#include<Arduino.h>
 
-const char* ssid = "C7-5F-TR";
-const char* password = "robot20212021robot";
+#define PIN1 26
+#define PIN2 25
+#define PIN3 33
+#define PIN4 32
+#define C4 262
+int stepIndex = 0;
 
-WiFiServer server(5000);
+void stepMotor(){
 
-const int MOTOR_PIN = 5;
+  digitalWrite(PIN1, LOW);
+  digitalWrite(PIN2, LOW);
+  digitalWrite(PIN3, LOW);
+  digitalWrite(PIN4, LOW);
 
-void setup() {
-  Serial.begin(115200);
-
-  WiFi.begin(ssid, password);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  switch(stepIndex){
+    case 0: digitalWrite(PIN1, HIGH); break;
+    case 1: digitalWrite(PIN2, HIGH); break;
+    case 2: digitalWrite(PIN3, HIGH); break;
+    case 3: digitalWrite(PIN4, HIGH); break;
   }
 
-  Serial.println();
-  Serial.println("WiFi connected");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  stepIndex++;
 
-  server.begin();
+  if(stepIndex >= 4){
+    stepIndex = 0;
+  }
 
 }
 
-void loop() {
+// 音を鳴らす
+// ----------------------
+void playNote(int freq, int duration){
 
-  WiFiClient client = server.available();
-
-  if (client) {
-
-    Serial.println("Client connected");
-
-    while (client.connected()) {
-
-      if (client.available()) {
-
-        String line = client.readStringUntil('\n');
-
-        line.trim();
-
-        int pwm = line.toInt();
-
-        pwm = constrain(pwm, 0, 255);
-
-        Serial.print("PWM = ");
-        Serial.println(pwm);
-      }
-    }
-
-    client.stop();
-
-    Serial.println("Client disconnected");
+  if(freq == 0){
+    delay(duration);
+    return;
   }
+
+  int delay_us = 1000000 / freq / 4;
+
+  unsigned long start = millis();
+
+  while(millis() - start < duration){
+
+    stepMotor();
+
+    delayMicroseconds(delay_us);
+  }
+}
+
+void setup(){
+
+  pinMode(PIN1, OUTPUT);
+  pinMode(PIN2, OUTPUT);
+  pinMode(PIN3, OUTPUT);
+  pinMode(PIN4, OUTPUT);
+}
+
+void loop(){
+	playNote(C4, 500);
 }
