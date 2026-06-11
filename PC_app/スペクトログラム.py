@@ -3,21 +3,37 @@ from scipy.signal import spectrogram
 import matplotlib.pyplot as plt
 import numpy as np
 
-fs, data = wavfile.read("PC_app/samplefile/c9cddeac.wav")
+# WAV読み込み
+fs, data = wavfile.read(
+    r"C:\Users\Owner\Desktop\speakingmotor\PC_app\samplefile\c9cddeac.wav"
+)
 
-print("fs =", fs)
-print("shape =", data.shape)
+print("サンプリング周波数:", fs, "Hz")
+print("元のshape:", data.shape)
 
-# ステレオ→左チャンネルだけ使う
+# ステレオならモノラル化
 if len(data.shape) == 2:
-    data = data[:, 0]
+    data = data.mean(axis=1)
 
-print("after shape =", data.shape)
+print("変換後shape:", data.shape)
 
-f, t, Sxx = spectrogram(data, fs)
+# スペクトログラム計算
+f, t, Sxx = spectrogram(
+    data,
+    fs=fs,
+    nperseg=1024,
+    noverlap=512
+)
 
-plt.pcolormesh(t, f, 10*np.log10(Sxx + 1e-10))
+# dB表示
+Sxx_db = 10 * np.log10(Sxx + 1e-10)
+
+# 描画
+plt.figure(figsize=(10, 5))
+plt.pcolormesh(t, f, Sxx_db, shading="gouraud")
 plt.ylabel("Frequency [Hz]")
 plt.xlabel("Time [sec]")
-plt.colorbar(label="Power (dB)")
+plt.title("Spectrogram")
+plt.colorbar(label="Power [dB]")
+plt.ylim(0, 5000)  # 人の声が見やすい範囲
 plt.show()
