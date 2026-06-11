@@ -1,23 +1,29 @@
 import socket
 import time
+import csv
 
 ESP32_IP = "192.168.1.128"
 PORT = 5000
 
-with open(r"C:\\Users\\Owner\\Desktop\\speakingmotor\\motor_freq.csv", "r") as f:
-    lines = f.readlines()
-
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.connect((ESP32_IP, PORT))
 
-for line in lines:
-    line = line.strip()
+with open(
+    r"C:\Users\Owner\Desktop\speakingmotor\PC_app\motor_data.csv",
+    "r",
+    newline=""
+) as f:
 
-    if not line:
-        continue
+    reader = csv.reader(f)
 
-    sock.send((line + '\n').encode())  # ←改行を保証
+    next(reader)  # ヘッダ行を飛ばす
 
-    time.sleep(0.005)  # ←少し遅くする（重要）
+    for row in reader:
+
+        motor1 = row[1]  # 左から2列目
+
+        sock.send((motor1 + "\n").encode())
+
+        time.sleep(0.0116)
 
 sock.close()
